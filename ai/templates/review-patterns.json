@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Review Pattern Tracker",
+  "description": "Tracks recurring review feedback. When a pattern reaches the threshold, it should be converted into an automated lint rule.",
+  "type": "object",
+  "properties": {
+    "threshold": {
+      "type": "integer",
+      "description": "Number of occurrences before a pattern should be automated",
+      "default": 3
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "category", "occurrences"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique pattern identifier (PAT-NNN)"
+          },
+          "description": {
+            "type": "string",
+            "description": "What the recurring issue is"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["security", "typeSafety", "codeQuality", "naming", "testing", "architecture"],
+            "description": "Which review category this falls under"
+          },
+          "occurrences": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "How many times this pattern has been flagged"
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "file": { "type": "string" },
+                "line": { "type": "integer" },
+                "code": { "type": "string" },
+                "date": { "type": "string", "format": "date" }
+              }
+            },
+            "description": "Specific instances where this pattern was found"
+          },
+          "automatedAs": {
+            "type": "string",
+            "description": "If automated, reference to the lint rule or check that handles it"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["tracking", "ready-to-automate", "automated"],
+            "description": "Current state of this pattern"
+          }
+        }
+      }
+    }
+  },
+  "default": {
+    "threshold": 3,
+    "patterns": []
+  }
+}

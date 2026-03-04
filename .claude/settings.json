@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Glob",
+      "Grep",
+      "Read",
+      "TodoWrite"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_INPUT\" | grep -qE '(rm -rf /|git push --force|git reset --hard|--no-verify)'; then echo 'BLOCKED: Destructive command detected. Use /guardrails to verify safety first.' >&2; exit 1; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [],
+    "PreCommit": []
+  }
+}

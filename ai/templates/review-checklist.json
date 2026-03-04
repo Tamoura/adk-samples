@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Code Review Checklist",
+  "description": "Deterministic review checklist. Used by /review to ensure consistent evaluation.",
+  "type": "object",
+  "properties": {
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "checks"],
+        "properties": {
+          "name": { "type": "string" },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "description", "severity"],
+              "properties": {
+                "id": { "type": "string" },
+                "description": { "type": "string" },
+                "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+                "automated": { "type": "boolean", "description": "Whether this check has an automated equivalent" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "default": {
+    "categories": [
+      {
+        "name": "correctness",
+        "checks": [
+          { "id": "COR-001", "description": "Code does what it is supposed to do", "severity": "critical", "automated": false },
+          { "id": "COR-002", "description": "Edge cases handled", "severity": "high", "automated": false },
+          { "id": "COR-003", "description": "Error conditions handled at system boundaries", "severity": "high", "automated": false },
+          { "id": "COR-004", "description": "New code paths have test coverage", "severity": "high", "automated": true }
+        ]
+      },
+      {
+        "name": "security",
+        "checks": [
+          { "id": "SEC-001", "description": "No command injection (user input in shell commands)", "severity": "critical", "automated": true },
+          { "id": "SEC-002", "description": "No XSS (user input in HTML output)", "severity": "critical", "automated": true },
+          { "id": "SEC-003", "description": "No SQL injection (user input in queries)", "severity": "critical", "automated": true },
+          { "id": "SEC-004", "description": "No hardcoded secrets or credentials", "severity": "critical", "automated": true },
+          { "id": "SEC-005", "description": "No insecure deserialization", "severity": "high", "automated": false },
+          { "id": "SEC-006", "description": "No path traversal vulnerabilities", "severity": "high", "automated": true }
+        ]
+      },
+      {
+        "name": "typeSafety",
+        "checks": [
+          { "id": "TYP-001", "description": "No 'any' types introduced", "severity": "high", "automated": true },
+          { "id": "TYP-002", "description": "No unsafe type assertions", "severity": "medium", "automated": true },
+          { "id": "TYP-003", "description": "All function parameters and returns typed", "severity": "high", "automated": true },
+          { "id": "TYP-004", "description": "Null/undefined handled explicitly", "severity": "medium", "automated": false }
+        ]
+      },
+      {
+        "name": "codeQuality",
+        "checks": [
+          { "id": "QUA-001", "description": "No dead code introduced", "severity": "medium", "automated": true },
+          { "id": "QUA-002", "description": "No unused imports", "severity": "low", "automated": true },
+          { "id": "QUA-003", "description": "No premature abstractions", "severity": "medium", "automated": false },
+          { "id": "QUA-004", "description": "Consistent naming conventions", "severity": "low", "automated": true },
+          { "id": "QUA-005", "description": "Self-documenting code", "severity": "low", "automated": false }
+        ]
+      },
+      {
+        "name": "scopeDiscipline",
+        "checks": [
+          { "id": "SCP-001", "description": "Changes scoped to intended feature/fix", "severity": "medium", "automated": false },
+          { "id": "SCP-002", "description": "No unrelated modifications", "severity": "medium", "automated": false },
+          { "id": "SCP-003", "description": "Diff surface is minimal", "severity": "low", "automated": false }
+        ]
+      },
+      {
+        "name": "testing",
+        "checks": [
+          { "id": "TST-001", "description": "New tests are hermetic", "severity": "high", "automated": false },
+          { "id": "TST-002", "description": "New tests are deterministic", "severity": "high", "automated": false },
+          { "id": "TST-003", "description": "Test names are descriptive", "severity": "low", "automated": false },
+          { "id": "TST-004", "description": "Existing tests still pass", "severity": "critical", "automated": true }
+        ]
+      }
+    ]
+  }
+}
