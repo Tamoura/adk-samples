@@ -1,77 +1,87 @@
-# Agent Development Kit (ADK) Samples
+# LLM Council
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+![llmcouncil](header.jpg)
 
-<img src="https://github.com/google/adk-docs/blob/main/docs/assets/agent-development-kit.png" alt="Agent Development Kit Logo" width="150">
+The idea of this repo is that instead of asking a question to your favorite LLM provider (e.g. OpenAI GPT 5.1, Google Gemini 3.0 Pro, Anthropic Claude Sonnet 4.5, xAI Grok 4, eg.c), you can group them into your "LLM Council". This repo is a simple, local web app that essentially looks like ChatGPT except it uses OpenRouter to send your query to multiple LLMs, it then asks them to review and rank each other's work, and finally a Chairman LLM produces the final response.
 
-Welcome to the Sample Agents repository! This collection provides ready-to-use agents built on top of the [Agent Development Kit](https://github.com/google/adk-python), designed to accelerate your development process.  These agents cover a range of common use cases and complexities, from simple conversational bots to complex multi-agent workflows.
+In a bit more detail, here is what happens when you submit a query:
 
-## ✨ What are Sample Agents?
+1. **Stage 1: First opinions**. The user query is given to all LLMs individually, and the responses are collected. The individual responses are shown in a "tab view", so that the user can inspect them all one by one.
+2. **Stage 2: Review**. Each individual LLM is given the responses of the other LLMs. Under the hood, the LLM identities are anonymized so that the LLM can't play favorites when judging their outputs. The LLM is asked to rank them in accuracy and insight.
+3. **Stage 3: Final response**. The designated Chairman of the LLM Council takes all of the model's responses and compiles them into a single final answer that is presented to the user.
 
-A Sample Agent is a functional starting point for a foundational agent designed for common application scenarios. It comes pre-packaged with core logic (like different agents using different tools, evaluation, human in the loop) relevant to a specific use case or industry. While functional, a Sample Agent typically requires customization (e.g., adjusting specific responses or integrating with external systems) to be fully operational. Each agent includes instructions on how it can be customized.
+## Vibe Code Alert
 
-## 🚀 Getting Started
+This project was 99% vibe coded as a fun Saturday hack because I wanted to explore and evaluate a number of LLMs side by side in the process of [reading books together with LLMs](https://x.com/karpathy/status/1990577951671509438). It's nice and useful to see multiple responses side by side, and also the cross-opinions of all LLMs on each other's outputs. I'm not going to support it in any way, it's provided here as is for other people's inspiration and I don't intend to improve it. Code is ephemeral now and libraries are over, ask your LLM to change it in whatever way you like.
 
-Follow these steps to set up and run the sample agents:
+## Setup
 
-1.  **Prerequisites:**
-    *   **Install the ADK Samples:** Ensure you have the Agent Development Kit installed and configured. Follow the [ADK Installation Guide](https://google.github.io/adk-docs/get-started/installation/).
-    *   **Set Up Environment Variables:** Each agent example relies on a `.env` file for configuration (like API keys, Google Cloud project IDs, and location). This keeps secrets out of the code.
-        *   You will need to create a `.env` file in each agent's directory you wish to run (usually by copying the provided `.env.example`).
-        *   Setting up these variables, especially obtaining Google Cloud credentials, requires careful steps. Refer to the **Environment Setup** section in the [ADK Installation Guide](https://google.github.io/adk-docs/get-started/installation/) for detailed instructions.
-    *   **Google Cloud Project (Recommended):** While some agents might run locally with just an API key, most leverage Google Cloud services like Vertex AI and BigQuery. A configured Google Cloud project is highly recommended. See the [ADK Quickstart](https://google.github.io/adk-docs/get-started/quickstart/) for setup details.
+### 1. Install Dependencies
 
+The project uses [uv](https://docs.astral.sh/uv/) for project management.
 
-2.  **Clone this repository:**
-You can install the ADK samples via cloning it from the public repository by
-    ```bash
-    git clone https://github.com/google/adk-samples.git
-    cd adk-samples
-    ```
-
-3.  **Explore the Agents:**
-
-*   Navigate to the `agents/` directory.
-*   The `agents/README.md` provides an overview and categorization of the available agents.
-*   Browse the subdirectories. Each contains a specific sample agent with its own `README.md`.
-
-4.  **Run an Agent:**
-    *   Choose an agent from the `agents/` directory.
-    *   Navigate into that agent's specific directory (e.g., `cd agents/llm-auditor`).
-    *   Follow the instructions in *that agent's* `README.md` file for specific setup (like installing dependencies via `poetry install`) and running the agent.
-
-    Browse the folders in this repository. Each agent and tool have its own `README.md` file with detailed instructions.
-
-**Notes:**
-* These agents have been built and tested using [Google models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models) on Vertex AI. You can test these samples with other models as well. Please refer to [ADK Tutorials](https://google.github.io/adk-docs/agents/models/) to use other models for these samples. 
-
-## 🧱 Repository Structure
+**Backend:**
 ```bash
-.
-├── agents                  # Contains individual agent samples 
-│   ├── agent1              # Specific agent directory
-│   │   └── README.md       # Agent-specific instructions    
-│   ├── agent2
-│   │   └── README.md
-│   ├── ...   
-│   └── README.md           # Overview and categorization of agents
-└── README.md               # This file (Repository overview)
+uv sync
 ```
 
-## ℹ️ Getting help
+**Frontend:**
+```bash
+cd frontend
+npm install
+cd ..
+```
 
-If you have any questions or if you found any problems with this repository, please report through [GitHub issues]( https://github.com/google/adk-samples/issues).
+### 2. Configure API Key
 
-## 🤝 Contributing
+Create a `.env` file in the project root:
 
-We welcome contributions from the community! Whether it's bug reports, feature requests, documentation improvements, or code contributions, please see our [**Contributing Guidelines**](https://github.com/google/adk-samples/blob/main/CONTRIBUTING.md) to get started.
+```bash
+OPENROUTER_API_KEY=sk-or-v1-...
+```
 
-## 📄 License
+Get your API key at [openrouter.ai](https://openrouter.ai/). Make sure to purchase the credits you need, or sign up for automatic top up.
 
-This project is licensed under the Apache 2.0 License - see the [LICENSE](https://github.com/google/adk-samples/blob/main/LICENSE) file for details.
+### 3. Configure Models (Optional)
 
-## Disclaimers
+Edit `backend/config.py` to customize the council:
 
-This is not an officially supported Google product. This project is not eligible for the [Google Open Source Software Vulnerability Rewards Program](https://bughunters.google.com/open-source-security).
+```python
+COUNCIL_MODELS = [
+    "openai/gpt-5.1",
+    "google/gemini-3-pro-preview",
+    "anthropic/claude-sonnet-4.5",
+    "x-ai/grok-4",
+]
 
-This project is intended for demonstration purposes only. It is not intended for use in a production environment.
+CHAIRMAN_MODEL = "google/gemini-3-pro-preview"
+```
+
+## Running the Application
+
+**Option 1: Use the start script**
+```bash
+./start.sh
+```
+
+**Option 2: Run manually**
+
+Terminal 1 (Backend):
+```bash
+uv run python -m backend.main
+```
+
+Terminal 2 (Frontend):
+```bash
+cd frontend
+npm run dev
+```
+
+Then open http://localhost:5173 in your browser.
+
+## Tech Stack
+
+- **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter API
+- **Frontend:** React + Vite, react-markdown for rendering
+- **Storage:** JSON files in `data/conversations/`
+- **Package Management:** uv for Python, npm for JavaScript
